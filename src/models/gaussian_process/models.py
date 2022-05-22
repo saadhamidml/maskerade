@@ -560,7 +560,7 @@ def build_model(
                 spacing=covariance_function['spacing'],
                 omega_max=covariance_function['max_frequency']
             )
-        data_lh.noise = 1e-1
+        data_lh.noise = 1e-3
         return {'model': data_mod, 'mll': None}
     elif covariance_function['type'] == 'keops_gaussian_spectral_mixture':
         covariance_module = KeOpsSpectralMixtureKernel(
@@ -610,7 +610,7 @@ def build_model(
 
     if likelihood['type'] == 'gaussian':
         likelihood_module = GaussianLikelihood()
-        likelihood_module.noise = likelihood.get('noise', 1e-1)
+        likelihood_module.noise = likelihood.get('noise', 1e-3)
     else:
         raise NotImplementedError(
             f'{likelihood["type"]} likelihood not implemented'
