@@ -61,7 +61,7 @@ def segregate(
         )
         train_indices = dataframe.index.drop(test_indices.tolist()).to_numpy()
         reindexing = np.concatenate((train_indices, test_indices)).tolist()
-        dataframe = dataframe.reindex(reindexing)
+        dataframe = dataframe.reindex(reindexing).dropna()
         train_set, test_set = train_test_split(
             dataframe,
             test_size=test_size,

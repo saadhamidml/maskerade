@@ -12,7 +12,7 @@ experiment:
 problem:
   name: "mauna_loa"
   remove_linear_trend: False
-  test_size: 0.33
+  test_size: 0.1
   shuffle: True
 model:
   type: "gaussian_process"
