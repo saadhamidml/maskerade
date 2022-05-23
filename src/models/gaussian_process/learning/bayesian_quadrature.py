@@ -261,7 +261,7 @@ def sample(
                 acquisition_function,
                 sacred_run=sacred_run
             )
-        except RuntimeError as e:
+        except Exception as e:
             logging.warning(
                 f'Acquisiton function optimisation failed with error:\n{e}\nEnding loop.'
             )

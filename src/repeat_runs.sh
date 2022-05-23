@@ -12,7 +12,7 @@ do
         c) config=${OPTARG};;
         r) repeats=${OPTARG};;
         s) seeds=${OPTARG};;
-        x) crossvalidate=${OPTARG};;
+        x) crossvalidation=${OPTARG};;
     esac
 done
 
@@ -28,11 +28,11 @@ set +e
 if [ -n "$repeats" ]; then
   for i in $(seq 1 $repeats)
   do
-    if [ -n "$crossvalidate" ]; then
+    if [ -n "$crossvalidation" ]; then
       seed=$RANDOM
-      for i in $(seq 1 $crossvalidate)
+      for i in $(seq 1 $crossvalidation)
       do
-        python -u main.py with $config cross_validate=$i seed=$seed collection=$collection_name --force
+        python -u main.py with $config cross_validation=$i seed=$seed collection=$collection_name --force
       done
     else
       python -u main.py with $config collection=$collection_name --force
@@ -44,10 +44,10 @@ if [ -n "$seeds" ]; then
   seeds=$(realpath $seeds)
   while read seed;
   do
-    if [ -n "$crossvalidate" ]; then
-      for i in $(seq 1 $crossvalidate)
+    if [ -n "$crossvalidation" ]; then
+      for i in $(seq 1 $crossvalidation)
       do
-        python -u main.py with $config cross_validate=$i seed=$seed collection=$collection_name --force
+        python -u main.py with $config cross_validation=$i seed=$seed collection=$collection_name --force
       done
     else
       python -u main.py with $config seed=$seed collection=$collection_name --force

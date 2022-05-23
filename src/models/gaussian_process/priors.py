@@ -15,7 +15,7 @@ from torch.distributions import (
 )
 from torch.distributions.transforms import AbsTransform
 from gpytorch.priors import (
-    Prior, UniformPrior, NormalPrior, LogNormalPrior as GLogNormalPrior
+    Prior, UniformPrior, NormalPrior, GammaPrior, LogNormalPrior as GLogNormalPrior
 )
 from gpytorch.priors.utils import _bufferize_attributes
 
@@ -100,6 +100,10 @@ class TruncatedNormal(TransformedDistribution):
     def scale(self):
         return self.base_dist.scale
 
+    def log_prob(self, x):
+        assert (self.loc == 0).all()
+        return self.base_dist.log_prob(x) + torch.tensor(2.).log()
+
 
 class TruncatedNormalPrior(Prior, TruncatedNormal):
     """
@@ -135,6 +139,9 @@ class TruncatedNormalPrior(Prior, TruncatedNormal):
     def expand(self, batch_shape):
         batch_shape = torch.Size(batch_shape)
         return TruncatedNormalPrior(self.loc.expand(batch_shape), self.scale.expand(batch_shape))
+    
+    def log_prob(self, x):
+        return TruncatedNormal.log_prob(self, x)
 
 
 class LogNormalPrior(GLogNormalPrior):
@@ -150,6 +157,10 @@ class LogNormalPrior(GLogNormalPrior):
             *sample_shape, *self.batch_shape, *self.event_shape
         )
         return self.icdf(torch.tensor(sobol_seq))
+
+
+class InverseGammaPrior(TransformedDistribution):
+    pass
 
 
 def automatic_prior_specification(

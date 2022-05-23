@@ -47,8 +47,9 @@ def bayesian_quadrature(
     model.eval()
     quadrature_weights = learn_output.prediction_weights
     hyperparameters = learn_output.prediction_hyperparameters
-    # with gpytorch.settings.fast_pred_var():
-    predictions = model(hyperparameters, test_inputs, batch=False)
+    # with :
+    with torch.no_grad(), gpytorch.settings.fast_pred_var():
+        predictions = model(hyperparameters, test_inputs, batch=False)
     if model.n_random_fourier_features is not None:
         # Too much data to work out log prob of test set.
         means = []

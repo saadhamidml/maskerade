@@ -68,4 +68,4 @@ numerics:
         type: "lbfgs"
     batch_size: 20
     num_batches: 1
-  kernel_integration_num_samples: 1024
+  kernel_integration_num_samples: 512

@@ -56,15 +56,17 @@ def fit_bq(
         ) = integrand_model.integral_posterior(
             return_covariance_blocks=True
         )
-    data_cholesky = covariance_blocks[0]
-    train_targets = torch.cat(integrand_model.surrogate.train_targets, dim=0)
+        data_cholesky = covariance_blocks[0]
+        train_targets = torch.cat(
+            integrand_model.surrogate.train_targets, dim=0
+        )
 
-    # cholesky decomposition of full covariance.
-    data_int_cholesky = cholesky_update(
-        data_cholesky,
-        cross_covariance=covariance_blocks[1],
-        self_covariance=covariance_blocks[2]
-    )
+        # cholesky decomposition of full covariance.
+        data_int_cholesky = cholesky_update(
+            data_cholesky,
+            cross_covariance=covariance_blocks[1],
+            self_covariance=covariance_blocks[2]
+        )
 
     if sacred_run is not None:
         sacred_run.log_scalar(
@@ -388,6 +390,7 @@ def acquire(
             batch_size=acquisition_function['batch_size'],
             num_batches=acquisition_function['num_batches']
         )
+        integrand_model.surrogate.train()
     else:
         raise NotImplementedError
 
