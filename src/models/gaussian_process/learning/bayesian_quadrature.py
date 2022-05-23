@@ -174,7 +174,7 @@ def sample(
         )
 
     if load_id is None:
-        surrogate_model.covar_module.outputscale = 1.414 * torch.exp(
+        surrogate_model.covar_module.outputscale = 1 / math.e * torch.exp(
             max_log_float
         )
         surrogate_model.covar_module.register_prior(
@@ -188,7 +188,7 @@ def sample(
         distances = surrogate_model().covariance_matrix.div_(
             surrogate_model.covar_module.outputscale
         ).log_().mul_(-surrogate_model.covar_module.base_kernel.lengthscale)
-        typical_length = distances[triu_inds[0], triu_inds[1]].detach().median().cpu().numpy().item() #/ math.e ** 3
+        typical_length = distances[triu_inds[0], triu_inds[1]].detach().median().cpu().numpy().item() / math.e ** 3
         surrogate_model.covar_module.base_kernel.lengthscale = typical_length
         surrogate_model.covar_module.base_kernel.register_prior(
             'lengthscale_prior',
@@ -300,13 +300,13 @@ def sample(
                 surrogate['numerics']['strategy'] == 'optimisation'
                 and (i + 1) % surrogate['numerics']['optimise_every'] == 0
         ):
-            surrogate_model.covar_module.outputscale = 1.414 * torch.exp(max_log_float)
+            surrogate_model.covar_module.outputscale = 1 / math.e * torch.exp(max_log_float)
             num_samples = torch.tensor([h.size(0) for h in hyperparameters]).sum()
             triu_inds = torch.triu_indices(num_samples, num_samples, 1)
             distances = surrogate_model().covariance_matrix.div_(
                 surrogate_model.covar_module.outputscale
             ).log_().mul_(-surrogate_model.covar_module.base_kernel.lengthscale)
-            typical_length = distances[triu_inds[0], triu_inds[1]].detach().median().cpu().numpy().item() #/ math.e ** 3
+            typical_length = distances[triu_inds[0], triu_inds[1]].detach().median().cpu().numpy().item() / math.e ** 3
             surrogate_model.covar_module.base_kernel.lengthscale = typical_length
 
             surrogate_model.covar_module.raw_outputscale.requires_grad_(True)

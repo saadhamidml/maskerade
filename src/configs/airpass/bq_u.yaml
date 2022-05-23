@@ -58,7 +58,7 @@ numerics:
         type: "lbfgs"
       optimise_every: 5
   acquisition_function:
-    type: "fit_bq"
+    type: "uncertainty_sampling"
     numerics:
       strategy: "optimisation"
       initialisation:
@@ -66,6 +66,6 @@ numerics:
         num_samples: 5000
       optimiser:
         type: "lbfgs"
-    batch_size: 20
+    batch_size: 1
     num_batches: 1
   kernel_integration_num_samples: 1024
