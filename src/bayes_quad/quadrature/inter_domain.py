@@ -217,9 +217,12 @@ class InterDomainIntegrandModel(IntegrandModel):
             weights_prior = domain_prior[0]
             means_prior = domain_prior[1]
             scales_prior = domain_prior[2]
-            weights_samples = weights_prior.low_discrepancy_sample((num_samples,))
-            means_samples = means_prior.low_discrepancy_sample((num_samples,))
-            scales_samples = scales_prior.low_discrepancy_sample((num_samples,))
+            weights_samples = weights_prior.sample((num_samples,))
+            means_samples = means_prior.sample((num_samples,))
+            scales_samples = scales_prior.sample((num_samples,))
+            # weights_samples = weights_prior.low_discrepancy_sample((num_samples,))
+            # means_samples = means_prior.low_discrepancy_sample((num_samples,))
+            # scales_samples = scales_prior.low_discrepancy_sample((num_samples,))
             # weights_samples = ExactGPModel.postprocess_hyperparameter_sample(
             #     weights_samples, num_samples
             # )

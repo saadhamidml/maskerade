@@ -326,6 +326,12 @@ def sample(
         total_time += iteration_time
         if (time_budget is not None and total_time > time_budget) or stop_flag:
             break
+    
+    if sacred_run is not None:
+        sacred_run.log_scalar(
+            'acquisition_iterations',
+            i + 1
+        )
 
     integrand_model.compute_prediction_weights()
 

@@ -59,7 +59,9 @@ def segregate(
             (cross_validation - 1) * n_test_points,
             cross_validation * n_test_points
         )
-        train_indices = dataframe.index.drop(test_indices.tolist()).to_numpy()
+        train_indices = dataframe.index.drop(
+            test_indices.tolist(), errors='ignore'
+        ).to_numpy()
         reindexing = np.concatenate((train_indices, test_indices)).tolist()
         dataframe = dataframe.reindex(reindexing).dropna()
         train_set, test_set = train_test_split(

@@ -8,7 +8,6 @@ import torch
 import os
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.linear_model import LinearRegression
-os.environ['R_HOME'] = '/data/saad/miniconda3/envs/marginalising-stationary-kernels-37/lib/R'
 import rpy2.robjects as robjects
 from rpy2.robjects import pandas2ri
 from rpy2.robjects.conversion import localconverter
