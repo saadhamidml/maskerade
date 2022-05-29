@@ -328,10 +328,16 @@ def sample(
             break
     
     if sacred_run is not None:
-        sacred_run.log_scalar(
-            'acquisition_iterations',
-            i + 1
-        )
+        try:
+            sacred_run.log_scalar(
+                'acquisition_iterations',
+                (i + 1) / n_iterations
+            )
+        except:
+            sacred_run.log_scalar(
+                'acquisition_iterations',
+                0
+            )
 
     integrand_model.compute_prediction_weights()
 

@@ -27,7 +27,7 @@
             "justMyCode": false
         },
         {
-            "name": "af-bq",
+            "name": "ap-bq",
             "type": "python",
             "request": "launch",
             "cwd": "${workspaceFolder}/src",
@@ -35,7 +35,35 @@
             "args": [
                 "--force",
                 "with",
-                "configs/airfoil/bq.yaml"
+                "configs/airpass/bq.yaml"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "ra-bq-p",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/src",
+            "program": "${workspaceFolder}/src/main.py",
+            "args": [
+                "--force",
+                "with",
+                "configs/road_altitude/bq_p.yaml"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "ra-bq-seb",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/src",
+            "program": "${workspaceFolder}/src/main.py",
+            "args": [
+                "--force",
+                "with",
+                "configs/road_altitude/bq_seb.yaml"
             ],
             "console": "integratedTerminal",
             "justMyCode": false

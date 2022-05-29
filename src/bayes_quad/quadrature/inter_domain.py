@@ -68,41 +68,44 @@ class InterDomainIntegrandModel(IntegrandModel):
             data_integral_block.add_(di_block)
             integral_integral_block.add_(ii_block)
             num_iterations += 1
-        data_integral_block.div_(num_iterations)
-        integral_integral_block.div_(num_iterations)
-        data_integral_block = data_integral_block.sum(dim=1, keepdim=True)
-        integral_integral_block = integral_integral_block.sum().view(1, 1)
-        covariance_blocks = (
-            data_cholesky, data_integral_block, integral_integral_block
-        )
-        train_targets = torch.cat(self.surrogate.train_targets, dim=0)
-        posterior_mean = (
-            data_integral_block.transpose(0, 1)
-            @ torch.cholesky_solve(train_targets.unsqueeze(-1), data_cholesky)
-        ).view(-1)
-        posterior_correction = (
-            data_integral_block.transpose(0, 1)
-            @ torch.cholesky_solve(data_integral_block, data_cholesky)
-        )
-        posterior_covariance = integral_integral_block - posterior_correction
-        try:
-            posterior = MultivariateNormal(
-                posterior_mean, posterior_covariance
-            )
-        except Exception as e:
-            warnings.warn(f'Caught exception\n{e}\nAdding jitter to Integral Covariance')
-            if posterior_covariance[0][0] < 1e-6:
-                posterior_covariance[0][0] = 1e-6
-            else:
-                integral_integral_block.add_(
-                    self.jitter * torch.eye(integral_integral_block.size(0))
+        success = False
+        while not success:
+            try:
+                data_integral_block_ = data_integral_block.sum(dim=1, keepdim=True) / num_iterations
+                integral_integral_block_ = integral_integral_block.sum().view(1, 1) / num_iterations
+                covariance_blocks = (
+                    data_cholesky, data_integral_block_, integral_integral_block_
                 )
-                posterior_covariance = (
-                        integral_integral_block - posterior_correction
+                train_targets = torch.cat(self.surrogate.train_targets, dim=0)
+                posterior_mean = (
+                    data_integral_block_.transpose(0, 1)
+                    @ torch.cholesky_solve(train_targets.unsqueeze(-1), data_cholesky)
+                ).view(-1)
+                posterior_correction = (
+                    data_integral_block_.transpose(0, 1)
+                    @ torch.cholesky_solve(data_integral_block_, data_cholesky)
                 )
-            posterior = MultivariateNormal(
-                posterior_mean, posterior_covariance
-            )
+                posterior_covariance = integral_integral_block_ - posterior_correction
+            
+                posterior = MultivariateNormal(
+                    posterior_mean, posterior_covariance
+                )
+                success = True
+            except Exception as e:
+                data_sample_covariances = self._data_sample_kernel(samples)
+                di_block, sample_posterior_means = self._data_integral_covariance(
+                    k_inv_z=k_inv_z,
+                    data_sample_covariances=data_sample_covariances
+                )
+                ii_block = self._integral_integral_covariance(
+                    samples=samples,
+                    data_sample_covariances=data_sample_covariances,
+                    sample_posterior_means=sample_posterior_means,
+                    k_inv_z=k_inv_z
+                )
+                data_integral_block.add_(di_block)
+                integral_integral_block.add_(ii_block)
+                num_iterations += 1
         if return_covariance_blocks:
             return (
                 posterior, samples, sample_posterior_means, covariance_blocks

@@ -1,6 +1,6 @@
 # seed should ideally be in the experiment dictionary, but keeping it at
 # the root allows Sacred to manage it.
-seed: 531751114
+# seed: 531751114
 experiment:
   directories:
     data: "../data"
@@ -63,10 +63,9 @@ numerics:
       strategy: "optimisation"
       initialisation:
         strategy: "sample_prior"
-        num_samples: 250
+        num_samples: 128
       optimiser:
-        type: "sgd"
-        num_iterations: 1
+        type: "lbfgs"
     batch_size: 1
     num_batches: 1
   kernel_integration_num_samples: 1024

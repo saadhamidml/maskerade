@@ -64,7 +64,7 @@ numerics:
       strategy: "optimisation"
       initialisation:
         strategy: "sample_prior"
-        num_samples: 250
+        num_samples: 128
       optimiser:
         type: "lbfgs"
     batch_size: 1
