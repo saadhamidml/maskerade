@@ -19,8 +19,7 @@ model:
   collection: True
   approximation: "exact"
   mean_function:
-    # type: "constant"
-    type: "linear"
+    type: "constant"
   covariance_function:
     type: "bayesian_gaussian_spectral_mixture"
     num_mixtures: [1, 2, 3, 4, 5]
@@ -37,7 +36,7 @@ numerics:
   infer_while_learning: False
   initialisation:
     strategy: "sample_prior"
-    num_samples: 100
+    num_samples: 900
   surrogate:
     model:
       warping: "linearised_square_root"

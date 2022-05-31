@@ -37,7 +37,7 @@ numerics:
   infer_while_learning: False
   initialisation:
     strategy: "sample_prior"
-    num_samples: 100
+    num_samples: 900
   surrogate:
     model:
       warping: "linearised_square_root"
@@ -56,7 +56,7 @@ numerics:
         lengthscale: 10.0
       optimiser:
         type: "lbfgs"
-      optimise_every: 5
+      optimise_every: 1
   acquisition_function:
     type: "fit_bq"
     numerics:
@@ -66,6 +66,6 @@ numerics:
         num_samples: 128
       optimiser:
         type: "lbfgs"
-    batch_size: 1
+    batch_size: 5
     num_batches: 1
   kernel_integration_num_samples: 1024

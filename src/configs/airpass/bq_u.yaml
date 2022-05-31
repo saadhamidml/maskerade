@@ -37,7 +37,7 @@ numerics:
   infer_while_learning: False
   initialisation:
     strategy: "sample_prior"
-    num_samples: 100
+    num_samples: 900
   surrogate:
     model:
       warping: "linearised_square_root"

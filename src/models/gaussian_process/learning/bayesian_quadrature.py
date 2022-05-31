@@ -142,6 +142,33 @@ def sample(
     # hyperparameters[1] = torch.cat((hyperparameters[1], torch.tensor([[0.75, 0.25, 1e-1, 30, 1e-9, 0.6]])), 0)
     # log_likelihoods[1] = torch.cat((log_likelihoods[1], model.compute_likelihood(1, hyperparameters[1][-1:])), 0)
 
+    if acquisition_function.get('type', 'fit_bq') == 'sample_prior':
+        hyperparameters_, log_likelihoods_ = sample_initial(
+            model,
+            {
+                'strategy': 'sample_prior',
+                'num_samples': (
+                    evaluation_budget
+                    - initialisation['num_samples']
+                )
+            }
+        )
+        hyperparameters = [
+            torch.cat((hyperparameters[i], hyperparameters_[i]), dim=0)
+            for i in range(len(hyperparameters))
+        ]
+        log_likelihoods = [
+            torch.cat((log_likelihoods[i], log_likelihoods_[i]), dim=0)
+            for i in range(len(log_likelihoods))
+        ]
+        n_iterations = 0
+    else:
+        n_iterations = int(
+            (evaluation_budget - initialisation['num_samples'])
+            / acquisition_function['batch_size']
+        )
+
+
     max_log_float = torch.zeros(1).squeeze()
     max_log_likelihood = torch.tensor(
         [torch.max(l) for l in log_likelihoods]
@@ -219,10 +246,6 @@ def sample(
     total_time += time() - start_time
     print(f'Initial sampling time: {total_time}')
 
-    n_iterations = int(
-        (evaluation_budget - initialisation['num_samples'])
-        / acquisition_function['batch_size']
-    )
     for i in range(n_iterations):
         if infer_while_learning and (i + 1) % infer_every == 0:
             integrand_model.compute_prediction_weights()
