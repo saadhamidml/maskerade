@@ -201,27 +201,58 @@ def sample(
         )
 
     if load_id is None:
-        surrogate_model.covar_module.outputscale = 1 / math.e * torch.exp(
-            max_log_float
-        )
+        surrogate_target_log_std = torch.cat(offset_likelihoods).std().log()
+        outputscale_init = (
+            (math.log(2) / 2 - surrogate_target_log_std) / 2
+            + surrogate_target_log_std
+        ).exp()
+        outputscale_scale = (math.log(2) / 2 - surrogate_target_log_std) / 3
+        surrogate_model.covar_module.outputscale = outputscale_init.item()
         surrogate_model.covar_module.register_prior(
-            'outputscale_prior', LogNormalPrior(0.1, 1 / math.e ** 3), 'outputscale'
+            'outputscale_prior',
+            LogNormalPrior(outputscale_init.log().item(), outputscale_scale),
+            'outputscale'
         )
-        surrogate_model.covar_module.base_kernel.lengthscale = (
-            surrogate['numerics'].get('initialisation', {}).get('lengthscale', 1.0)
-        )
+        # Moment match mean distance; prior mode is median distance.
+        # surrogate_model.covar_module.base_kernel.lengthscale = (
+        #     surrogate['numerics'].get('initialisation', {}).get('lengthscale', 1.0)
+        # )
         triu_inds = torch.triu_indices(
             initialisation['num_samples'], initialisation['num_samples'], 1)
         distances = surrogate_model().covariance_matrix.div_(
             surrogate_model.covar_module.outputscale
         ).log_().mul_(-surrogate_model.covar_module.base_kernel.lengthscale)
-        typical_length = distances[triu_inds[0], triu_inds[1]].detach().median().cpu().numpy().item() / math.e ** 3
+        distances = distances[triu_inds[0], triu_inds[1]].detach().cpu()
+        typical_length = distances.median().item() # / math.e ** 3
+        lengthscale_scale = (
+            2 / 3 * (distances.mean().log() - distances.median().log())
+        ).sqrt().item()
         surrogate_model.covar_module.base_kernel.lengthscale = typical_length
         surrogate_model.covar_module.base_kernel.register_prior(
             'lengthscale_prior',
-            LogNormalPrior(math.log(typical_length), 1 / math.e ** 3),
+            LogNormalPrior(
+                math.log(typical_length) + lengthscale_scale ** 2,
+                lengthscale_scale
+            ),
             'lengthscale'
         )
+        hypers = []
+        losses = []
+        for i in range(10):
+            for prior_name, *_ in surrogate_model.covar_module.named_priors():
+                try:
+                    surrogate_model.covar_module.sample_from_prior(prior_name)
+                except RuntimeError:
+                    surrogate_model.covar_module.base_kernel.sample_from_prior('lengthscale_prior')
+            hypers.append({k: torch.clone(v.detach()) for k, v in surrogate_model.named_hyperparameters()})
+            losses.append(
+                -surrogate_metric(
+                    surrogate_model(surrogate_model.train_inputs[0]),
+                    torch.cat(surrogate_model.warping_function(surrogate_model.train_targets), dim=0).detach()
+                ).detach().item()
+            )
+        best_hypers = hypers[np.argmin(losses)]
+        surrogate_model.initialize(**best_hypers)
     else:
         surrogate_model.covar_module.outputscale = (
             torch.load(learn_output_dir / 'surrogate_outputscale.pt')
@@ -323,14 +354,54 @@ def sample(
                 surrogate['numerics']['strategy'] == 'optimisation'
                 and (i + 1) % surrogate['numerics']['optimise_every'] == 0
         ):
-            surrogate_model.covar_module.outputscale = 1 / math.e * torch.exp(max_log_float)
+            surrogate_target_log_std = torch.cat(offset_likelihoods).std().log()
+            outputscale_init = (
+                (math.log(2) / 2 - surrogate_target_log_std) / 2
+                + surrogate_target_log_std
+            ).exp()
+            outputscale_scale = (math.log(2) / 2 - surrogate_target_log_std) / 3
+            surrogate_model.covar_module.outputscale = outputscale_init.item()
+            surrogate_model.covar_module.register_prior(
+                'outputscale_prior',
+                LogNormalPrior(outputscale_init.log().item(), outputscale_scale),
+                'outputscale'
+            )
             num_samples = torch.tensor([h.size(0) for h in hyperparameters]).sum()
             triu_inds = torch.triu_indices(num_samples, num_samples, 1)
             distances = surrogate_model().covariance_matrix.div_(
                 surrogate_model.covar_module.outputscale
             ).log_().mul_(-surrogate_model.covar_module.base_kernel.lengthscale)
-            typical_length = distances[triu_inds[0], triu_inds[1]].detach().median().cpu().numpy().item() / math.e ** 3
+            distances = distances[triu_inds[0], triu_inds[1]].detach().cpu()
+            typical_length = distances.median().item() # / math.e ** 3
+            lengthscale_scale = (
+                2 / 3 * (distances.mean().log() - distances.median().log())
+            ).sqrt().item()
             surrogate_model.covar_module.base_kernel.lengthscale = typical_length
+            surrogate_model.covar_module.base_kernel.register_prior(
+                'lengthscale_prior',
+                LogNormalPrior(
+                    math.log(typical_length) + lengthscale_scale ** 2,
+                    lengthscale_scale
+                ),
+                'lengthscale'
+            )
+            hypers = []
+            losses = []
+            for i in range(10):
+                for prior_name, *_ in surrogate_model.covar_module.named_priors():
+                    try:
+                        surrogate_model.covar_module.sample_from_prior(prior_name)
+                    except RuntimeError:
+                        surrogate_model.covar_module.base_kernel.sample_from_prior('lengthscale_prior')
+                hypers.append({k: torch.clone(v.detach()) for k, v in surrogate_model.named_hyperparameters()})
+                losses.append(
+                    -surrogate_metric(
+                        surrogate_model(surrogate_model.train_inputs[0]),
+                        torch.cat(surrogate_model.warping_function(surrogate_model.train_targets), dim=0).detach()
+                    ).detach().item()
+                )
+            best_hypers = hypers[np.argmin(losses)]
+            surrogate_model.initialize(**best_hypers)
 
             surrogate_model.covar_module.raw_outputscale.requires_grad_(True)
             surrogate_model.covar_module.base_kernel.raw_lengthscale.requires_grad_(True)

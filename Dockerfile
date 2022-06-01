@@ -26,8 +26,11 @@ RUN pip install gpytorch==1.3.0 \
   requests \
   rpy2 \
   sacred \
-  tqdm
-RUN git clone https://github.com/wjmaddox/spectralgp.git
+  tqdm \
+  xlrd
+RUN git clone https://github.com/wjmaddox/spectralgp.git && \
+  cd spectralgp && \
+  git checkout 74f0cb236363a307e4442429584a7023c47ecc23
 RUN mv /workspace/spectralgp/spectralgp /opt/conda/lib/python3.8/site-packages/spectralgp
 
 # Uncomment below to copy project files into container and run command when container starts up.

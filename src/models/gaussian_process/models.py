@@ -262,6 +262,7 @@ class GPModelCollection:
                     self.train_inputs.size(1)
                     if self.train_inputs.ndimension() > 1 else 1
                 ),
+                n_data=self.train_inputs.size(0),
                 n_mixtures=self.covariance_function['num_mixtures'][
                     model_index
                 ],

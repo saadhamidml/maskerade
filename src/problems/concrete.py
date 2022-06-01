@@ -22,7 +22,7 @@ def ingest(data_dir: Union[Path, str] = Path('./'), **kwargs):
         content = requests.get(data_url).content
         open(dataset_path, 'wb').write(content)
 
-    dataframe = pd.read_excel(dataset_path)
+    dataframe = pd.read_excel(dataset_path).drop_duplicates()
     # data type setting so it plays nicely with PyTorch and GPyTorch
     default_type = torch.get_default_dtype()
     if default_type == torch.float32:

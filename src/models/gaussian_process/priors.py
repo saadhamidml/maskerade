@@ -165,6 +165,7 @@ class InverseGammaPrior(TransformedDistribution):
 
 def automatic_prior_specification(
         dimensions: int = 1,
+        n_data: int = 1,
         n_mixtures: int = 1,
         nyquist_frequencies: Tensor = None
 ) -> Mapping:
@@ -181,14 +182,18 @@ def automatic_prior_specification(
             'type': 'normal',
             'parameters': {
                 'loc': [0] * dimensions * n_mixtures,
-                'scale': (nyquist_frequencies / 5).tolist() * n_mixtures
+                # 'scale': (nyquist_frequencies / 5).tolist() * n_mixtures
+                'scale': (2 * nyquist_frequencies).sqrt().tolist() * n_mixtures
             }
         },
         'scales': {
             'type': 'lognormal',
             'parameters': {
-                'loc': [0] * dimensions * n_mixtures,
-                'scale': [0.35] * dimensions * n_mixtures
+                # 'loc': [0] * dimensions * n_mixtures,
+                # 'scale': [0.35] * dimensions * n_mixtures
+                'loc': (2 * nyquist_frequencies).sqrt().log().tolist() * n_mixtures,
+                # 'scale': [0.69] * dimensions * n_mixtures
+                'scale': ((2 * nyquist_frequencies).pow(1 / 10).log()).tolist() * n_mixtures
             }
         }
     }
