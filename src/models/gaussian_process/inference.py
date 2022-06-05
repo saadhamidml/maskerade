@@ -310,6 +310,7 @@ def infer(
         model: Union[GP, GPModelCollection, SpectralModel] = None,
         mll: MarginalLogLikelihood = None,
         learn_output=None,
+        target_preprocessor=None,
         test_inputs: Tensor = None,
         test_targets: Tensor = None,
         numerics: Mapping = None,
@@ -355,6 +356,10 @@ def infer(
         sacred_run.log_scalar(
             'test_rmse',
             output[1]
+        )
+        sacred_run.log_scalar(
+            'test_rmse_unnormalised',
+            output[1] * target_preprocessor.scale_.item()
         )
         sacred_run.log_scalar(
             'inference_time',

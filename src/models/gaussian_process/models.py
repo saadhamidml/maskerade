@@ -26,7 +26,7 @@ from .kernels import (
     BayesianSpectralMixtureKernel,
     KeOpsBayesianSpectralMixtureKernel
 )
-from utils import nyquist_frequencies
+from utils import max_distances, nyquist_frequencies
 
 from models.gaussian_process import priors
 
@@ -227,7 +227,8 @@ class GPModelCollection:
         )
         self.n_models = len(self.num_mixtures)
         self.train_inputs = train_inputs
-        self.nyquist_frequencies = nyquist_frequencies(self.train_inputs)
+        self.max_distances = max_distances(self.train_inputs)
+        self.nyquist_frequencies = nyquist_frequencies(self.train_inputs, self.max_distances)
         self.train_targets = train_targets
         self.use_cuda = use_cuda
         self.training = True
@@ -262,10 +263,10 @@ class GPModelCollection:
                     self.train_inputs.size(1)
                     if self.train_inputs.ndimension() > 1 else 1
                 ),
-                n_data=self.train_inputs.size(0),
                 n_mixtures=self.covariance_function['num_mixtures'][
                     model_index
                 ],
+                max_distances=self.max_distances,
                 nyquist_frequencies=self.nyquist_frequencies
             )
         covariance_function['type'] = self.covariance_function['type']
@@ -335,6 +336,7 @@ class GPModelCollection:
                     n_mixtures=self.covariance_function['num_mixtures'][
                         model_index
                     ],
+                    max_distances=self.max_distances,
                     nyquist_frequencies=self.nyquist_frequencies
                 )
             device = self.train_inputs.device

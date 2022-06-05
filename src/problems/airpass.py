@@ -13,7 +13,7 @@ from rpy2.robjects import pandas2ri
 from rpy2.robjects.conversion import localconverter
 
 # Use standard prepare and segregate functions
-from .general import segregate
+from .general import prepare, segregate, visualise
 
 
 def ingest(
@@ -57,9 +57,9 @@ def ingest(
     )
 
 
-def prepare(dataframe: pd.DataFrame, *args, **kwargs):
-    """Prepare dataset and define training data preprocessing steps."""
-    # Scale features so that nyquist frequency is 1.
-    # Assume evenly spaced, warp so spacing is 0.5 units
-    max_value = 48
-    return MinMaxScaler(feature_range=(0, max_value)), StandardScaler()
+# def prepare(dataframe: pd.DataFrame, *args, **kwargs):
+#     """Prepare dataset and define training data preprocessing steps."""
+#     # Scale features so that nyquist frequency is 1.
+#     # Assume evenly spaced, warp so spacing is 0.5 units
+#     max_value = 48
+#     return MinMaxScaler(feature_range=(0, max_value)), StandardScaler()

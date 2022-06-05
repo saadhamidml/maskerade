@@ -10,7 +10,7 @@ import torch
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 # Use standard prepare and segregate functions
-from .general import segregate
+from .general import segregate, prepare, visualise
 
 
 def ingest(
@@ -49,10 +49,10 @@ def ingest(
     return dataframe
 
 
-def prepare(dataframe: pd.DataFrame, *args, **kwargs):
-    """Prepare dataset and define training data preprocessing steps."""
-    # Scale features so that nyquist frequency is 1.
-    # Assume evenly spaced, warp so spacing is 0.5 units
-    # max_value = 161
-    max_value = 0.66
-    return MinMaxScaler(feature_range=(0, max_value)), StandardScaler()
+# def prepare(dataframe: pd.DataFrame, *args, **kwargs):
+#     """Prepare dataset and define training data preprocessing steps."""
+#     # Scale features so that nyquist frequency is 1.
+#     # Assume evenly spaced, warp so spacing is 0.5 units
+#     # max_value = 161
+#     max_value = 0.66
+#     return MinMaxScaler(feature_range=(0, max_value)), StandardScaler()

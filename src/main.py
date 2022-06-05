@@ -94,6 +94,7 @@ def run_experiment(_config=None, _run=None):
         use_cuda=use_cuda,
         **_config['problem']
     )
+    problem.visualise(train_x, train_y, test_x, test_y, log_dir)
 
     # Get model components.
     model_type = _config['model']['type']
@@ -125,6 +126,7 @@ def run_experiment(_config=None, _run=None):
     infer_output = model_module.infer(
         **model_components,
         learn_output=learn_output,
+        target_preprocessor=target_preprocessor,
         test_inputs=test_x,
         test_targets=test_y,
         numerics=_config['numerics'],
@@ -134,19 +136,19 @@ def run_experiment(_config=None, _run=None):
     )
 
     # Visualisation
-    # model_module.visualise(
-    #     model_components,
-    #     learn_output=learn_output,
-    #     infer_function=model_module.infer,
-    #     train_inputs=train_x,
-    #     train_targets=train_y,
-    #     test_inputs=test_x,
-    #     test_targets=test_y,
-    #     feature_preprocessor=feature_preprocessor,
-    #     target_preprocessor=target_preprocessor,
-    #     numerics=_config['numerics'],
-    #     problem_config=_config['problem'],
-    #     log_dir=log_dir,
-    #     **_config.get('visualisation', {})
-    # )
-
+    if _config.get('visualisation', {}):
+        model_module.visualise(
+            model_components,
+            learn_output=learn_output,
+            infer_function=model_module.infer,
+            train_inputs=train_x,
+            train_targets=train_y,
+            test_inputs=test_x,
+            test_targets=test_y,
+            feature_preprocessor=feature_preprocessor,
+            target_preprocessor=target_preprocessor,
+            numerics=_config['numerics'],
+            problem_config=_config['problem'],
+            log_dir=log_dir,
+            **_config.get('visualisation', {})
+        )

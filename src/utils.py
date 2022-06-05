@@ -26,7 +26,13 @@ def cholesky_update(
     return torch.cat((updated_top, updated_bottom), dim=0)
 
 
-def nyquist_frequencies(train_inputs: Tensor, assume_even: bool = True):
+def max_distances(train_inputs):
+    if train_inputs.ndimension() == 1:
+        train_inputs = train_inputs.unsqueeze(1)
+    sorted = train_inputs.sort(dim=0)[0]
+    return sorted[-1, :] - sorted[0, :]
+
+def nyquist_frequencies(train_inputs: Tensor, max_distances: Tensor, assume_even: bool = True):
     """Helper method to compute Nyquist frequencies of each dimension.
 
     assume_even assumes train_inputs are evenly spread across domain,
@@ -41,13 +47,13 @@ def nyquist_frequencies(train_inputs: Tensor, assume_even: bool = True):
     )
     minimum_distances = dezeroed.min(dim=0)[0]
     if assume_even:
-        n_train_inputs = train_inputs.size(0)
-        dimensions = (
-            train_inputs.size(1) if train_inputs.ndimension() > 1 else 1
-        )
-        even_distances = (
-            torch.ones(dimensions).to(train_inputs) / n_train_inputs
-        )
+        if train_inputs.ndimension() == 1:
+            train_inputs = train_inputs.unsqueeze(1)
+        n_train_inputs = torch.tensor([
+            torch.unique(train_inputs[:, i]).size(0)
+            for i in range(train_inputs.size(1))
+        ]).to(train_inputs)
+        even_distances = max_distances / n_train_inputs
     else:
         even_distances = minimum_distances
     return 0.5 / torch.max(minimum_distances, even_distances)

@@ -7,7 +7,7 @@ import pandas as pd
 import torch
 
 # Use standard prepare and segregate functions
-from .general import prepare, segregate
+from .general import prepare, segregate, visualise
 
 
 def ingest(data_dir: Union[Path, str] = Path('./'), **kwargs):

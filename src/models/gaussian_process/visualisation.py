@@ -84,10 +84,10 @@ def wsabi_posterior(
     ax.plot(
         train_x,
         train_y,
-        color=COLOURS['red'],
+        color=COLOURS['purple'],
         marker='.', linestyle=''
     )
-    ax.plot(test_x, test_y, color=COLOURS['red'])
+    ax.plot(test_x, test_y, color=COLOURS['red'], marker='.', linestyle='')
     ax.plot(plot_x, mean.detach().cpu().numpy(), COLOURS['blue'])
     ax.fill_between(
         plot_x,
@@ -343,23 +343,23 @@ def wsabi_kernel(
     delta = (feature_preprocessor.data_max_ - feature_preprocessor.data_min_).item()
     fig, ax = plt.subplots(1, 1)
     plot_x = np.linspace(0, 75, 500)
-    for w, m, s in zip(
-        problem_config['mixture_weights'],
-        problem_config['mixture_means'],
-        problem_config['mixture_scales']
-    ):
-        true_scales = np.array(s).reshape(-1, 1) * delta
-        true_gmm = GaussianMixture(
-            n_components=len(true_scales),
-            covariance_type='diag'
-        )
-        true_gmm.weights_ = np.array(w).reshape(-1)
-        true_gmm.means_ = np.array(m).reshape(-1, 1) * delta
-        true_gmm.covariances_ = true_scales ** 2
-        true_gmm.precisions_ = true_scales ** -2
-        true_gmm.precisions_cholesky_ = true_scales ** -1
-        true_spectrum = np.exp(true_gmm.score_samples(plot_x.reshape(-1, 1)).reshape(-1))
-        ax.plot(plot_x, true_spectrum, color=COLOURS['red'])
+    # for w, m, s in zip(
+    #     problem_config['mixture_weights'],
+    #     problem_config['mixture_means'],
+    #     problem_config['mixture_scales']
+    # ):
+    #     true_scales = np.array(s).reshape(-1, 1) * delta
+    #     true_gmm = GaussianMixture(
+    #         n_components=len(true_scales),
+    #         covariance_type='diag'
+    #     )
+    #     true_gmm.weights_ = np.array(w).reshape(-1)
+    #     true_gmm.means_ = np.array(m).reshape(-1, 1) * delta
+    #     true_gmm.covariances_ = true_scales ** 2
+    #     true_gmm.precisions_ = true_scales ** -2
+    #     true_gmm.precisions_cholesky_ = true_scales ** -1
+    #     true_spectrum = np.exp(true_gmm.score_samples(plot_x.reshape(-1, 1)).reshape(-1))
+    #     ax.plot(plot_x, true_spectrum, color=COLOURS['red'])
 
     bq_weights = learn_output.prediction_weights.sum(0).clamp_(1e-3, 0.999).cpu().numpy().tolist()
     bq_weights_iter = iter(bq_weights)

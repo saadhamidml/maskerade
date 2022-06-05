@@ -1,12 +1,14 @@
 """Problem agnostic code for setting up problems."""
+from pathlib import Path
 from typing import Tuple
 from math import ceil
 import numpy as np
 import pandas as pd
 import torch
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.preprocessing import FunctionTransformer, MinMaxScaler, StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle as sklearn_shuffle
+import matplotlib.pyplot as plt
 
 
 def attribute_target_split(
@@ -31,6 +33,7 @@ def dataframe_to_tensor(dataframe: pd.DataFrame) -> torch.Tensor:
 def prepare(dataframe: pd.DataFrame, *args, **kwargs):
     """Prepare dataset and define training data preprocessing steps."""
     return MinMaxScaler(), StandardScaler()
+    # return StandardScaler(), StandardScaler()
 
 
 def segregate(
@@ -106,3 +109,31 @@ def segregate(
         (train_x, train_y, test_x, test_y)
     )
     return train_x, train_y, test_x, test_y
+
+
+def visualise(
+    train_inputs: torch.Tensor,
+    train_targets: torch.Tensor,
+    test_inputs: torch.Tensor,
+    test_targets: torch.Tensor,
+    log_dir: Path('./')
+):
+    """Plot train and test sets.
+    
+    :param train_inputs: Train inputs, shape [N, D].
+    :param train_targets: Train targets, shape [N, D].
+    :param test_inputs: Test inputs, shape [M, D].
+    :param test_targets: Test targets, shape [M, D].
+    """
+    if train_inputs.ndimension() == 1:
+        train_inputs = train_inputs.unsqueeze(1)
+        test_inputs = test_inputs.unsqueeze(1)
+    for d in range(train_inputs.size(1)):
+        fig, ax = plt.subplots(1, 1)
+        ax.plot(train_inputs[:, d].cpu().numpy(), train_targets.cpu().numpy(), 'b.')
+        ax.plot(test_inputs[:, d].cpu().numpy(), test_targets.cpu().numpy(), 'r.')
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+        fig.tight_layout()
+        fig.savefig(log_dir / f'data_{d}.pdf')
+        plt.close(fig)
