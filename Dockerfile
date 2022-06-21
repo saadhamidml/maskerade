@@ -59,14 +59,6 @@ RUN groupadd --gid $USER_GID $USERNAME \
 # Set the default user. Omit if you want to keep the default as root.
 USER $USERNAME
 
-RUN pip install tensorboard
-
-# ENTRYPOINT [ "/bin/bash" ]
-# ENTRYPOINT  ["python", "main.py", "--force", "with"]
-# CMD ["config/yacht/bq.yaml"]
-# ENTRYPOINT ["bash", "./repeat_runs.sh"]
-# CMD ["-c config/yacht/bq.yaml", "-r 10"]
-
 # Do (from project root directory in host i.e. .../maskerade):
 # docker build -t maskerade .
-# docker run -it -u $(id -u):$(id -g) -v $(pwd):/maskerade --gpus=all --network=mongo-network maskerade
+# docker run -it --rm -u $(id -u):$(id -g) -v $(pwd):/maskerade --gpus=all --network=mongo-network --name maskerade maskerade

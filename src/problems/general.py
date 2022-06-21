@@ -32,8 +32,8 @@ def dataframe_to_tensor(dataframe: pd.DataFrame) -> torch.Tensor:
 
 def prepare(dataframe: pd.DataFrame, *args, **kwargs):
     """Prepare dataset and define training data preprocessing steps."""
-    return MinMaxScaler(), StandardScaler()
-    # return StandardScaler(), StandardScaler()
+    # return MinMaxScaler(), StandardScaler()
+    return StandardScaler(), StandardScaler()
 
 
 def segregate(

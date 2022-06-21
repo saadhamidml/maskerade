@@ -87,6 +87,11 @@ def optimise_hyperparameters(
             history_size=10,
             line_search_fn='strong_wolfe'
         )
+    elif optimiser['type'] == 'sgd':
+        optimiser_module = torch.optim.SGD(
+            [{'params': model.parameters()}, ],
+            lr=optimiser.get('learning_rate', 1),
+        )
     else:
         raise NotImplementedError
 
@@ -120,4 +125,8 @@ def optimise_hyperparameters(
         loss.backward(retain_graph=retain_graph)
         monitor(loss)  # Log loss and model parameters to Sacred.
         return loss
-    optimiser_module.step(closure)
+    if optimiser['type'] == 'lbfgs':
+        optimiser_module.step(closure)
+    else:
+        for i in range(num_iterations):
+            optimiser_module.step(closure)
