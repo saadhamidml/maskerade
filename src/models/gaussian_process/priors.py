@@ -164,6 +164,7 @@ class InverseGammaPrior(TransformedDistribution):
 
 
 def automatic_prior_specification(
+        # train_inputs,
         dimensions: int = 1,
         n_mixtures: int = 1,
         max_distances: Tensor = None,
@@ -183,7 +184,7 @@ def automatic_prior_specification(
             'parameters': {
                 'loc': [0] * dimensions * n_mixtures,
                 # 'scale': (nyquist_frequencies / 5).tolist() * n_mixtures
-                'scale': (2 * nyquist_frequencies / max_distances).sqrt().div(n_mixtures ** 2).tolist() * n_mixtures
+                'scale': (2 * nyquist_frequencies / max_distances).sqrt().tolist() * n_mixtures
             }
         },
         'scales': {
@@ -191,12 +192,30 @@ def automatic_prior_specification(
             'parameters': {
                 # 'loc': [0] * dimensions * n_mixtures,
                 # 'scale': [0.35] * dimensions * n_mixtures
-                'loc': (2 * nyquist_frequencies / max_distances).sqrt().div(n_mixtures ** 2).log().tolist() * n_mixtures,
+                'loc': (2 * nyquist_frequencies / max_distances).sqrt().log().tolist() * n_mixtures,
                 # 'scale': [0.69] * dimensions * n_mixtures
                 'scale': ((2 * nyquist_frequencies * max_distances).pow(1 / 10).log()).tolist() * n_mixtures
             }
         }
     }
+    # train_inputs = train_inputs.view(-1, 1) if train_inputs.ndimension() == 1 else train_inputs
+    # triu_inds = torch.triu_indices(train_inputs.size(0), train_inputs.size(0), 1)
+    # distances = (train_inputs.unsqueeze(1) - train_inputs.unsqueeze(0)).abs()[triu_inds[0], triu_inds[1], :]
+    # distances = torch.where(distances == 0, np.nan * torch.ones_like(distances), distances).numpy()
+    # print(f'Min dists: {np.nanmin(distances, 0)}')
+    # print(f'Median dists: {np.nanmedian(distances, 0)}')
+    # print(f'Mean dists: {np.nanmean(distances, 0)}')
+    # print(f'Max dists: {np.nanmax(distances, 0)}')
+    # print(f'Nyquist Freq: {nyquist_frequencies}')
+    # median_scale = (2 * nyquist_frequencies / max_distances).sqrt()
+    # log_scale_scale = (2 * nyquist_frequencies * max_distances).pow(1 / 10).log()
+    # min_scale = (median_scale.log() - 5 * log_scale_scale).exp()
+    # max_scale = (median_scale.log() + 5 * log_scale_scale).exp()
+    # print(f'Mean Scale: {median_scale}')
+    # print(f'Lengthscale Min: {1 / max_scale}')
+    # print(f'Lengthscale Median: {1 / median_scale}')
+    # print(f'Lengthscale Max: {1 / min_scale}')
+    # import pdb; pdb.set_trace()
     return specification
 
 

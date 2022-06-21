@@ -259,6 +259,7 @@ class GPModelCollection:
             )
         except TypeError:
             covariance_function = automatic_prior_specification(
+                # self.train_inputs,
                 dimensions=(
                     self.train_inputs.size(1)
                     if self.train_inputs.ndimension() > 1 else 1
