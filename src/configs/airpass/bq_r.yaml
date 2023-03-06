@@ -1,0 +1,62 @@
+# seed should ideally be in the experiment dictionary, but keeping it at
+# the root allows Sacred to manage it.
+#seed: 0
+collection: null
+experiment:
+  directories:
+    data: "../data"
+    logs: "../logs"
+  smoke_test: False
+  disable_cuda: False
+  cuda_device: 0
+  default_data_type: "float64"
+problem:
+  name: "airpass"
+  remove_linear_trend: False
+  test_size: 0.1
+  shuffle: True
+model:
+  type: "gaussian_process"
+  collection: True
+  approximation: "exact"
+  mean_function:
+    type: "constant"
+  covariance_function:
+    type: "bayesian_gaussian_spectral_mixture"
+    num_mixtures: [1, 2, 3, 4, 5]
+    prior: "automatic"
+  likelihood:
+    type: "gaussian"
+  marginal_log_likelihood:
+    type: "exact"
+numerics:
+  strategy: "bayesian_quadrature"
+  load_id: null
+  evaluation_budget: 1000
+  time_budget: null
+  infer_while_learning: False
+  initialisation:
+    strategy: "sample_prior"
+    num_samples: 1000
+  surrogate:
+    model:
+      warping: "linearised_square_root"
+      mean_function:
+        type: "constant"
+      covariance_function:
+        type: "energy_distance_mmd"
+      likelihood:
+        type: "gaussian"
+      marginal_log_likelihood:
+        type: "exact"
+      alpha_factor: 0.8
+    numerics:
+      strategy: "optimisation"
+      initialisation:
+        lengthscale: 10.0
+      optimiser:
+        type: "lbfgs"
+      optimise_every: 5
+  acquisition_function:
+    type: "sample_prior"
+  kernel_integration_num_samples: 1000

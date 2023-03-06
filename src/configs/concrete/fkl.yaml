@@ -1,0 +1,39 @@
+# seed should ideally be in the experiment dictionary, but keeping it at
+# the root allows Sacred to manage it.
+#seed: 0
+collection: null
+experiment:
+  directories:
+    data: "../data"
+    logs: "../logs"
+  smoke_test: False
+  disable_cuda: False
+  cuda_device: 0
+  default_data_type: "float64"
+problem:
+  name: "concrete"
+  test_size: 0.1
+  shuffle: True
+model:
+  type: "gaussian_process"
+  collection: False
+  approximation: "exact"
+  mean_function:
+    type: "constant"
+  covariance_function:
+    type: "spectral_gaussian_process"
+    n_frequencies: 100
+    spacing: 'even'
+  likelihood:
+    type: "gaussian"
+  marginal_log_likelihood:
+    type: "exact"
+numerics:
+  strategy: "ess_expectation_maximisation"
+  load_id: null
+  time_budget: 300
+  infer_while_learning: False
+  n_ess_iterations: 99999
+  n_ess_samples_per_iteration: 5
+  n_optimiser_iterations: 1
+  n_integration_samples: 1000
